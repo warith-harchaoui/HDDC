@@ -8,7 +8,6 @@ from sklearn.utils.validation import check_array
 from sklearn.utils import check_random_state
 from sklearn.metrics import normalized_mutual_info_score as nmi
 from typing import Optional, Sequence, Union, Dict
-from dataset import flat_covariances_gaussian_mixture_dataset
 
 EPS = 1e-5
 
