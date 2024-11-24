@@ -295,7 +295,72 @@ class HDDC(BaseEstimator, ClusterMixin):
             n_init = 1
             self.n_init = n_init
 
+        _validate_boolean_combinations()
 
+
+    def _validate_boolean_combinations(self):
+        """
+        Validate the combinations of boolean parameters in the HDDC model.
+
+        This method ensures that the chosen configurations of subspace dimensionality,
+        noise variance, and other constraints do not conflict. Raises a `ValueError`
+        for invalid combinations.
+
+        Raises
+        ------
+        ValueError
+            If an invalid combination of boolean parameters is detected.
+        """
+
+        # 1. Validate signal subspace constraints
+        if self.common_signal_dimensionality and self.common_signal_variance_across_clusters:
+            raise ValueError(
+                "The parameters `common_signal_dimensionality` and `common_signal_variance_across_clusters` "
+                "cannot both be True. Signal dimensionality sharing conflicts with shared variance."
+            )
+
+        if self.isotropic_signal_variance and self.common_signal_variance_across_clusters:
+            raise ValueError(
+                "The parameters `isotropic_signal_variance` and `common_signal_variance_across_clusters` "
+                "cannot both be True. Isotropic variance conflicts with shared signal variance."
+            )
+
+        if self.common_noise_variance and self.isotropic_signal_variance:
+            raise ValueError(
+                "The parameters `common_noise_variance` and `isotropic_signal_variance` "
+                "cannot both be True. Noise variance sharing conflicts with isotropy."
+            )
+
+        # 2. Validate noise variance constraints
+        if self.common_noise_variance and self.common_signal_variance_across_clusters:
+            raise ValueError(
+                "The parameters `common_noise_variance` and `common_signal_variance_across_clusters` "
+                "cannot both be True. Noise variance sharing conflicts with shared signal variance."
+            )
+
+        # 3. Validate signal subspace basis constraints
+        if self.common_signal_subspace_basis:
+            if self.common_signal_dimensionality:
+                raise ValueError(
+                    "The parameter `common_signal_subspace_basis` cannot be True when "
+                    "`common_signal_dimensionality` is also True. Subspace basis sharing "
+                    "conflicts with dimensionality constraints."
+                )
+            if self.common_signal_variance_across_clusters:
+                raise ValueError(
+                    "The parameter `common_signal_subspace_basis` cannot be True when "
+                    "`common_signal_variance_across_clusters` is also True. Subspace basis sharing "
+                    "conflicts with shared signal variance."
+                )
+
+        # 4. Validate minimum cluster size constraint
+        if self.min_size_cluster < 1:
+            raise ValueError(
+                f"The parameter `min_size_cluster` must be at least 1. Received: {self.min_size_cluster}."
+            )
+
+
+  
     def _n_parameters(self) -> int:
         """
         Compute the total number of free parameters in the HDDC model.
