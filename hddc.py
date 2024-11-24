@@ -295,7 +295,7 @@ class HDDC(BaseEstimator, ClusterMixin):
             n_init = 1
             self.n_init = n_init
 
-        _validate_boolean_combinations()
+        self._validate_boolean_combinations()
 
 
     def _validate_boolean_combinations(self):
