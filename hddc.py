@@ -1,3 +1,110 @@
+"""
+High-Dimensional Data Clustering (HDDC) - A Gaussian Mixture Model for High-Dimensional Data
+
+The HDDC class implements a model-based clustering method tailored for high-dimensional
+datasets. It extends the Gaussian Mixture Model (GMM) by leveraging dimensionality
+reduction and covariance constraints, making it efficient and robust for clustering
+data in spaces where the number of features significantly exceeds the number of samples.
+
+HDDC assumes that data within each cluster lie in a low-dimensional subspace, thus
+reducing computational cost and mitigating the curse of dimensionality. The model uses
+the Expectation-Maximization (EM) algorithm for parameter estimation.
+
+Key Features
+------------
+- **Subspace Clustering**: Identifies low-dimensional subspaces for each cluster.
+- **Covariance Constraints**: Supports shared or independent noise/signal variances.
+- **Dimensionality Estimation**: Automatically determines subspace dimensionality using
+  the Cattell Scree Test or similar heuristics.
+- **Model Selection**: Supports AIC, BIC, and ICL for selecting the optimal number of clusters.
+
+Parameters
+----------
+n_components : int, optional, default=4
+    Number of clusters to fit.
+tol : float, optional, default=100 * EPS
+    Tolerance for convergence in the EM algorithm.
+max_iter : int, optional, default=100
+    Maximum number of iterations for the EM algorithm.
+n_init : int, optional, default=10
+    Number of random initializations to run.
+random_state : Optional[Union[int, np.random.RandomState]], optional
+    Random state for reproducibility.
+cattell_threshold : float, optional, default=0.5
+    Threshold for the Cattell Scree Test to determine subspace dimensionality.
+common_signal_dimensionality : bool, optional, default=False
+    Whether all clusters share the same signal dimensionality.
+common_noise_variance : bool, optional, default=False
+    Whether all clusters share the same noise variance.
+common_signal_variance_across_clusters : bool, optional, default=False
+    Whether signal variances are shared across clusters.
+isotropic_signal_variance : bool, optional, default=False
+    Whether signal variances are isotropic within clusters.
+common_signal_subspace_basis : bool, optional, default=False
+    Whether clusters share the same subspace basis.
+min_size_cluster : int, optional, default=5
+    Minimum size allowed for clusters.
+init_params : Union[str, np.ndarray], optional, default="random"
+    Initialization method ('random', 'kmeans', or a custom array of labels).
+verbose : bool, optional, default=False
+    Whether to print detailed progress during the EM algorithm.
+
+Attributes
+----------
+responsibilities_ : np.ndarray
+    Posterior probabilities for each data point belonging to each cluster.
+weights_ : np.ndarray
+    Weights (proportions) of each cluster.
+means_ : np.ndarray
+    Cluster centroids.
+eigenvalues_ : List[np.ndarray]
+    Eigenvalues for each cluster's covariance matrix.
+eigenvectors_ : List[np.ndarray]
+    Eigenvectors for each cluster's covariance matrix.
+signal_dims_ : List[int]
+    Dimensionality of the signal subspace for each cluster.
+noise_variances_ : np.ndarray
+    Noise variances for each cluster.
+log_likelihood_ : float
+    Log-likelihood of the current model.
+
+Methods
+-------
+fit(X, y=None)
+    Fit the HDDC model to the data using the EM algorithm.
+predict(X)
+    Assign each data point in `X` to a cluster.
+predict_proba(X)
+    Compute posterior probabilities (responsibilities) for each cluster.
+score_samples(X)
+    Compute the log-probability of each sample under the model.
+score(X)
+    Compute the average log-likelihood of the data under the model.
+aic(X)
+    Compute the Akaike Information Criterion for the HDDC model.
+bic(X)
+    Compute the Bayesian Information Criterion for the HDDC model.
+icl(X)
+    Compute the Integrated Completed Likelihood criterion for the HDDC model.
+fit_predict(X, y=None)
+    Fit the HDDC model and predict cluster labels for the data.
+
+Notes
+-----
+The HDDC model is particularly effective for clustering in high-dimensional settings,
+such as text data, gene expression data, and image data, where traditional clustering
+methods often fail due to the curse of dimensionality. By leveraging subspace clustering
+and covariance constraints, HDDC achieves robust clustering with reduced computational cost.
+
+References
+----------
+- Bouveyron, C., Celeux, G., Murphy, T. B., & Raftery, A. E. (2007).
+  Model-based clustering of high-dimensional data.
+  Computational Statistics & Data Analysis, 52(8), 502-519.
+- Cattell, R. B. (1966). The Scree Test For The Number Of Factors.
+  Multivariate Behavioral Research, 1(2), 245-276.
+"""
+
 import numpy as np
 from scipy import linalg
 from scipy.linalg.blas import dsyrk
